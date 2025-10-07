@@ -2,19 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Resonera: Era of Resonance</title>
+<title>Resonera: Era of Resonance 🌸</title>
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
 <style>
-  body{background:#0b0d13;color:#bce;font-family:monospace;padding:20px;}
-  button{margin:6px 0;padding:6px 12px;border-radius:6px;background:#5a2bff;color:#fff;border:none;cursor:pointer;}
-  input,textarea{width:100%;padding:6px;margin:4px 0;border-radius:6px;border:1px solid #333;background:#10131a;color:#bce;}
-  svg{width:240px;height:240px;background:#000;border-radius:8px;margin-top:10px;display:block;}
-  #randomIntention{margin:12px 0;padding:8px;border:1px solid #333;border-radius:6px;background:#10131a;}
+  body {
+    background: #0b0d13;
+    color: #bce;
+    font-family: monospace;
+    padding: 20px;
+  }
+  h2 {
+    color: #9cf;
+  }
+  button {
+    margin: 6px 0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #5a2bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 6px;
+    margin: 4px 0;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #10131a;
+    color: #bce;
+  }
+  svg {
+    width: 240px;
+    height: 240px;
+    background: #000;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: block;
+  }
+  #randomIntention {
+    margin: 12px 0;
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #10131a;
+  }
 </style>
 </head>
 <body>
-<h2>Resonera: Era of Resonance </h2>
+<h2>Resonera: Era of Resonance 🌸</h2>
 
 <p><b>Random Intentions:</b></p>
 <div id="randomIntention"></div>
@@ -24,7 +61,7 @@
 <p><b>Declare Your Intention</b></p>
 <textarea id="intentionText" placeholder="Type your intention here..."></textarea>
 <input type="email" id="userEmail" placeholder="Enter your email">
-<button id="submitIntention">Generate & Send Lotus </button>
+<button id="submitIntention">Generate & Send Lotus 🌸</button>
 <button id="downloadSVG">Download SVG</button>
 
 <svg id="lotusSVG"></svg>
@@ -44,33 +81,33 @@ const safeIntentions = [
   "Expand wisdom and knowledge"
 ];
 
-function showRandomIntention(){
-  const rand = safeIntentions[Math.floor(Math.random()*safeIntentions.length)];
+function showRandomIntention() {
+  const rand = safeIntentions[Math.floor(Math.random() * safeIntentions.length)];
   document.getElementById("randomIntention").textContent = rand;
 }
-setInterval(showRandomIntention,5000);
+setInterval(showRandomIntention, 5000);
 showRandomIntention();
 
 // ---------- Compression helpers ----------
-function encodeShardData(obj){
-  const json=JSON.stringify(obj);
-  const comp=pako.deflate(json,{level:9});
+function encodeShardData(obj) {
+  const json = JSON.stringify(obj);
+  const comp = pako.deflate(json, { level: 9 });
   return btoa(String.fromCharCode(...comp));
 }
 
 // ---------- Lotus generator ----------
-let lastSVGCode = ""; // store for download
+let lastSVGCode = "";
 
-function createLotusSVG(encoded){
+function createLotusSVG(encoded) {
   const bytes = atob(encoded);
   const cx = 120, cy = 120;
-  const baseR = 20; // scale for larger flower
+  const baseR = 20;
   const step = (Math.PI * 4) / bytes.length;
   let angle = 0;
   let svg = "";
 
-  for(let i=0;i<bytes.length;i++){
-    const c=bytes.charCodeAt(i);
+  for (let i = 0; i < bytes.length; i++) {
+    const c = bytes.charCodeAt(i);
     const len = 20 + (c % 30);
     const width = 8 + (c % 8);
     const r = baseR + (c % 60);
@@ -95,7 +132,10 @@ function createLotusSVG(encoded){
 
 // ---------- Download SVG ----------
 document.getElementById("downloadSVG").onclick = () => {
-  if(!lastSVGCode){alert("Generate a lotus first."); return;}
+  if (!lastSVGCode) {
+    alert("Generate a lotus first.");
+    return;
+  }
   const blob = new Blob([lastSVGCode], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -105,16 +145,17 @@ document.getElementById("downloadSVG").onclick = () => {
   URL.revokeObjectURL(url);
 };
 
-// ---------- Email sending ----------
-emailjs.init("glaedn@gmail.com"); // replace with your EmailJS user ID
+// ---------- EmailJS setup ----------
+emailjs.init("glaedn@gmail.com"); // 🪷 using your original initialization value
 
-document.getElementById("submitIntention").onclick=()=>{
+// ---------- Send email ----------
+document.getElementById("submitIntention").onclick = () => {
   const text = document.getElementById("intentionText").value.trim();
   const email = document.getElementById("userEmail").value.trim();
-  if(!text){alert("Enter an intention."); return;}
-  if(!email){alert("Enter your email."); return;}
+  if (!text) { alert("Enter an intention."); return; }
+  if (!email) { alert("Enter your email."); return; }
 
-  const shard={text:text,date:new Date().toISOString()};
+  const shard = { text, date: new Date().toISOString() };
   const encoded = encodeShardData(shard);
   createLotusSVG(encoded);
 
@@ -125,13 +166,16 @@ document.getElementById("submitIntention").onclick=()=>{
     cerbanimo_email: "glaedn@gmail.com"
   };
 
-  emailjs.send("service_v9f0nc5","template_puepa9m",templateParams)
-  .then(res=>{
-    document.getElementById("status").textContent="Lotus generated & emailed!  Check your inbox.";
-  }).catch(err=>{
-    document.getElementById("status").textContent="Error sending email. Try again.";
-    console.error(err);
-  });
+  emailjs.send("service_v9f0nc5", "template_puepa9m", templateParams, "sxtLbkp8ZtTAajZpu")
+    .then(() => {
+      document.getElementById("status").textContent =
+        "🌸 Lotus generated & emailed! Check your inbox.";
+    })
+    .catch(err => {
+      document.getElementById("status").textContent =
+        "Error sending email. Try again.";
+      console.error(err);
+    });
 };
 </script>
 </body>
