@@ -6,28 +6,72 @@
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
 <style>
-  body{background:#0b0d13;color:#bce;font-family:monospace;padding:20px;}
-  button{margin:6px 0;padding:6px 12px;border-radius:6px;background:#5a2bff;color:#fff;border:none;cursor:pointer;}
-  input,textarea{width:100%;padding:6px;margin:4px 0;border-radius:6px;border:1px solid #333;background:#10131a;color:#bce;}
-  svg{width:240px;height:240px;background:#000;border-radius:8px;margin-top:10px;display:block;}
-  #randomIntention{margin:12px 0;padding:8px;border:1px solid #333;border-radius:6px;background:#10131a;}
+  body {
+    background:#0b0d13;
+    color:#bce;
+    font-family:monospace;
+    padding:20px;
+    text-align:center;
+  }
+  button {
+    margin:6px 0;
+    padding:6px 12px;
+    border-radius:6px;
+    background:#5a2bff;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+  }
+  input, textarea {
+    width:100%;
+    max-width:480px;
+    padding:8px;
+    margin:4px 0;
+    border-radius:6px;
+    border:1px solid #333;
+    background:#10131a;
+    color:#bce;
+  }
+  svg {
+    width:360px;
+    height:360px;
+    background:#000;
+    border-radius:12px;
+    margin:20px auto;
+    display:block;
+  }
+  #randomIntention {
+    margin:12px auto;
+    padding:8px;
+    border:1px solid #333;
+    border-radius:6px;
+    background:#10131a;
+    width:fit-content;
+  }
+  hr {
+    margin:20px auto;
+    border:0;
+    border-top:1px solid #333;
+    width:60%;
+  }
 </style>
 </head>
 <body>
 <h2>Resonera: Era of Resonance 🌸</h2>
 
-<p><b>Random Intentions:</b></p>
+<p><b>Random Intention:</b></p>
 <div id="randomIntention"></div>
+
+<svg id="lotusSVG"></svg>
 
 <hr>
 
 <p><b>Declare Your Intention</b></p>
 <textarea id="intentionText" placeholder="Type your intention here..."></textarea>
 <input type="email" id="userEmail" placeholder="Enter your email">
-<button id="submitIntention">Generate & Send Lotus 🌺</button>
+<br>
+<button id="submitIntention">Generate & Send Lotus 🌸</button>
 <button id="downloadSVG">Download SVG</button>
-
-<svg id="lotusSVG"></svg>
 
 <p id="status"></p>
 
@@ -45,16 +89,16 @@ const safeIntentions = [
 ];
 
 function showRandomIntention(){
-  const rand = safeIntentions[Math.floor(Math.random()*safeIntentions.length)];
+  const rand = safeIntentions[Math.floor(Math.random() * safeIntentions.length)];
   document.getElementById("randomIntention").textContent = rand;
 }
-setInterval(showRandomIntention,5000);
+setInterval(showRandomIntention, 5000);
 showRandomIntention();
 
 // ---------- Compression helpers ----------
 function encodeShardData(obj){
-  const json=JSON.stringify(obj);
-  const comp=pako.deflate(json,{level:9});
+  const json = JSON.stringify(obj);
+  const comp = pako.deflate(json, {level:9});
   return btoa(String.fromCharCode(...comp));
 }
 
@@ -63,17 +107,17 @@ let lastSVGCode = "";
 
 function createLotusSVG(encoded){
   const bytes = atob(encoded);
-  const cx = 120, cy = 120;
-  const baseR = 20;
+  const cx = 180, cy = 180; // adjusted for larger svg
+  const baseR = 30;
   const step = (Math.PI * 4) / bytes.length;
   let angle = 0;
   let svg = "";
 
   for(let i=0;i<bytes.length;i++){
     const c=bytes.charCodeAt(i);
-    const len = 20 + (c % 30);
+    const len = 24 + (c % 40);
     const width = 8 + (c % 8);
-    const r = baseR + (c % 60);
+    const r = baseR + (c % 80);
     const x = cx + Math.cos(angle) * r;
     const y = cy + Math.sin(angle) * r;
     const x1 = x + Math.cos(angle - Math.PI/2) * width;
@@ -82,20 +126,31 @@ function createLotusSVG(encoded){
     const y2 = y + Math.sin(angle + Math.PI/2) * width;
     const tipX = x + Math.cos(angle) * len;
     const tipY = y + Math.sin(angle) * len;
-    svg += `<path d="M${x1},${y1} Q${tipX},${tipY} ${x2},${y2} Z" fill="hsl(${(c*37)%360},70%,60%)" opacity="0.8"/>`;
+    svg += `<path d="M${x1},${y1} Q${tipX},${tipY} ${x2},${y2} Z"
+             fill="hsl(${(c*37)%360},70%,60%)" opacity="0.8"/>`;
     angle += step;
   }
 
-  svg += `<circle cx="${cx}" cy="${cy}" r="12" fill="#5a2bff" stroke="#fff" stroke-width="0.8"/>`;
-  const finalSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">${svg}</svg>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="14" fill="#5a2bff" stroke="#fff" stroke-width="1"/>`;
+  const finalSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360">${svg}</svg>`;
   document.getElementById("lotusSVG").innerHTML = finalSVG;
   lastSVGCode = finalSVG;
   return finalSVG;
 }
 
+// ---------- Live preview ----------
+document.getElementById("intentionText").addEventListener("input", () => {
+  const text = document.getElementById("intentionText").value.trim();
+  if (text.length > 2) {
+    const shard = { text, date: new Date().toISOString() };
+    const encoded = encodeShardData(shard);
+    createLotusSVG(encoded);
+  }
+});
+
 // ---------- Download SVG ----------
 document.getElementById("downloadSVG").onclick = () => {
-  if(!lastSVGCode){alert("Generate a lotus first."); return;}
+  if(!lastSVGCode){ alert("Generate a lotus first."); return; }
   const blob = new Blob([lastSVGCode], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -106,7 +161,7 @@ document.getElementById("downloadSVG").onclick = () => {
 };
 
 // ---------- Email sending ----------
-emailjs.init("sxtLbkp8ZtTAajZpu"); // your public key
+emailjs.init("sxtLbkp8ZtTAajZpu"); // ✅ your public key
 
 document.getElementById("submitIntention").onclick=()=>{
   const text = document.getElementById("intentionText").value.trim();
