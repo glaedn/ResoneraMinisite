@@ -177,21 +177,47 @@ document.getElementById("submitIntention").onclick=()=>{
   const svgBase64 = btoa(unescape(encodeURIComponent(svg)));
   const svgImageTag = `<img src="data:image/svg+xml;base64,${svgBase64}" alt="Your Resonera Lotus"/>`;
 
+  svgToPngBase64(svg, (pngBase64) => {
+  const svgImageTag = `<img src="${pngBase64}" alt="Your Resonera Lotus"/>`;
+
   const templateParams = {
     user_email: email,
-    to_email: email,             // ensures a valid recipient for EmailJS
+    to_email: email,
     intention_text: text,
-    svg_content: svgImageTag,    // send as an embedded image
+    svg_content: svgImageTag,
   };
 
-  emailjs.send("service_v9f0nc5","template_puepa9m",templateParams)
-  .then(res=>{
-    document.getElementById("status").textContent="✅ Lotus generated & emailed! Check your inbox.";
-  }).catch(err=>{
-    document.getElementById("status").textContent="❌ Error sending email. Check console for details.";
+
+  function svgToPngBase64(svgCode, callback) {
+  const img = new Image();
+  const svgBlob = new Blob([svgCode], {type: "image/svg+xml"});
+  const url = URL.createObjectURL(svgBlob);
+  img.onload = function() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 360;
+    canvas.height = 360;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    const pngBase64 = canvas.toDataURL("image/png");
+    callback(pngBase64);
+  };
+  img.src = url;
+}
+
+
+  emailjs.send("service_v9f0nc5","template_puepa9m", templateParams)
+  .then(() => {
+    document.getElementById("status").textContent =
+      "✅ Lotus generated & emailed! Check your inbox.";
+  })
+  .catch(err => {
+    document.getElementById("status").textContent =
+      "❌ Error sending email. Check console for details.";
     console.error(err);
   });
-};
+});
 </script>
 </body>
 </html>
+
