@@ -160,35 +160,8 @@ document.getElementById("downloadSVG").onclick = () => {
   URL.revokeObjectURL(url);
 };
 
-// ---------- Email sending ----------
-emailjs.init("sxtLbkp8ZtTAajZpu"); // ✅ your public key
-
-document.getElementById("submitIntention").onclick=()=>{
-  const text = document.getElementById("intentionText").value.trim();
-  const email = document.getElementById("userEmail").value.trim();
-  if(!text){alert("Enter an intention."); return;}
-  if(!email){alert("Enter your email."); return;}
-
-  const shard={text:text,date:new Date().toISOString()};
-  const encoded = encodeShardData(shard);
-  const svg = createLotusSVG(encoded);
-
-  // Convert SVG to base64 for embedding
-  const svgBase64 = btoa(unescape(encodeURIComponent(svg)));
-  const svgImageTag = `<img src="data:image/svg+xml;base64,${svgBase64}" alt="Your Resonera Lotus"/>`;
-
-  svgToPngBase64(svg, (pngBase64) => {
-  const svgImageTag = `<img src="${pngBase64}" alt="Your Resonera Lotus"/>`;
-
-  const templateParams = {
-    user_email: email,
-    to_email: email,
-    intention_text: text,
-    svg_content: svgImageTag,
-  };
-
-
-  function svgToPngBase64(svgCode, callback) {
+// ---------- Convert SVG to PNG ----------
+function svgToPngBase64(svgCode, callback) {
   const img = new Image();
   const svgBlob = new Blob([svgCode], {type: "image/svg+xml"});
   const url = URL.createObjectURL(svgBlob);
@@ -205,19 +178,41 @@ document.getElementById("submitIntention").onclick=()=>{
   img.src = url;
 }
 
+// ---------- Email sending ----------
+emailjs.init("sxtLbkp8ZtTAajZpu"); // ✅ your public key
 
-  emailjs.send("service_v9f0nc5","template_puepa9m", templateParams)
-  .then(() => {
-    document.getElementById("status").textContent =
-      "✅ Lotus generated & emailed! Check your inbox.";
-  })
-  .catch(err => {
-    document.getElementById("status").textContent =
-      "❌ Error sending email. Check console for details.";
-    console.error(err);
+document.getElementById("submitIntention").onclick = () => {
+  const text = document.getElementById("intentionText").value.trim();
+  const email = document.getElementById("userEmail").value.trim();
+  if(!text){alert("Enter an intention."); return;}
+  if(!email){alert("Enter your email."); return;}
+
+  const shard = { text, date: new Date().toISOString() };
+  const encoded = encodeShardData(shard);
+  const svg = createLotusSVG(encoded);
+
+  svgToPngBase64(svg, (pngBase64) => {
+    const svgImageTag = `<img src="${pngBase64}" alt="Your Resonera Lotus"/>`;
+
+    const templateParams = {
+      user_email: email,
+      to_email: email,
+      intention_text: text,
+      svg_content: svgImageTag,
+    };
+
+    emailjs.send("service_v9f0nc5","template_puepa9m", templateParams)
+    .then(() => {
+      document.getElementById("status").textContent =
+        "✅ Lotus generated & emailed! Check your inbox.";
+    })
+    .catch(err => {
+      document.getElementById("status").textContent =
+        "❌ Error sending email. Check console for details.";
+      console.error(err);
+    });
   });
-});
+};
 </script>
 </body>
 </html>
-
